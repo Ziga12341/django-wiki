@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import markdown2
-from .util import list_entries, get_entry, save_entry
+from encyclopedia.util import list_entries, get_entry, save_entry
 from django import forms
 from django.http import HttpResponseRedirect
 
@@ -54,5 +54,11 @@ def show_search_results(request, searched_query):
         })
     return render(request, "encyclopedia/search_result.html", {
         "results": f'There is no results for particular search: "{searched_query}"',
+        "form": SearchEntryForm(),
+    })
+
+
+def create_new_entry(request):
+    return render(request, "encyclopedia/create_new_entry.html", {
         "form": SearchEntryForm(),
     })
