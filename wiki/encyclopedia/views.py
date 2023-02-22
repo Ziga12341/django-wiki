@@ -8,6 +8,13 @@ from django.http import HttpResponseRedirect
 class SearchEntryForm(forms.Form):
     entry = forms.CharField(label="Type entry name you search for:")
 
+#            <input id="new_entry_title" name="title" type="text" placeholder="Write title of new entry">
+#            <textarea id="new_entry_content" name="content" placeholder="Text in Markdown"></textarea>
+
+
+class NewEntryForm(forms.Form):
+    title = forms.CharField(label="Title:")
+    content = forms.CharField(widget=forms.Textarea, label="Content:")
 
 def index(request):
     # Check if method is POST
@@ -59,6 +66,20 @@ def show_search_results(request, searched_query):
 
 
 def create_new_entry(request):
+    # Check if method is POST
+    if request.method == "POST":
+
+        # Take in the data the user submitted and save it as form
+        form = NewEntryForm(request.POST)
+
+        # Check if form data is valid (server-side)
+        if form.is_valid():
+
+            # Isolate the task from the 'cleaned' version of form data
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+            return save_entry(title, content)
+
     return render(request, "encyclopedia/create_new_entry.html", {
-        "form": SearchEntryForm(),
-    })
+        "new_entry_form": NewEntryForm(),
+})

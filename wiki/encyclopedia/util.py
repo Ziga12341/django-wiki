@@ -14,6 +14,7 @@ def list_entries():
 
 
 def save_entry(title, content):
+    print("started")
     """
     Saves an encyclopedia entry, given its title and Markdown
     content. If an existing entry with the same title already exists,
@@ -22,7 +23,8 @@ def save_entry(title, content):
     filename = f"entries/{title}.md"
     if default_storage.exists(filename):
         default_storage.delete(filename)
-    default_storage.save(filename, ContentFile(content))
+    print(default_storage.save(filename, ContentFile(content)))
+    print("Done")
 
 
 def get_entry(title):
