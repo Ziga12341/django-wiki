@@ -3,6 +3,7 @@ import markdown2
 from encyclopedia.util import list_entries, get_entry, save_entry
 from django import forms
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 class SearchEntryForm(forms.Form):
@@ -15,6 +16,7 @@ class SearchEntryForm(forms.Form):
 class NewEntryForm(forms.Form):
     title = forms.CharField(label="Title:")
     content = forms.CharField(widget=forms.Textarea, label="Content:")
+
 
 def index(request):
     # Check if method is POST
@@ -78,7 +80,8 @@ def create_new_entry(request):
             # Isolate the task from the 'cleaned' version of form data
             title = form.cleaned_data["title"]
             content = form.cleaned_data["content"]
-            return save_entry(title, content)
+            save_entry(title, content)
+            return HttpResponseRedirect(reverse("wiki:index"))
 
     return render(request, "encyclopedia/create_new_entry.html", {
         "new_entry_form": NewEntryForm(),
