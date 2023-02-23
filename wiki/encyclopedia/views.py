@@ -57,7 +57,7 @@ def show_entry(request, title):
     if title_already_in_entries(title):
         return render(request, "encyclopedia/entry.html", {
             "entry": markdown2.markdown(get_entry(title)),
-            "page_title": title.capitalize(),
+            "page_title": title,
             "form": SearchEntryForm(),
             "random_page": f'/wiki/{choice(list_entries())}'
         })
@@ -110,4 +110,15 @@ def create_new_entry(request):
         "new_entry_form": NewEntryForm(),
         "form": SearchEntryForm(),
         "random_page": f'/wiki/{choice(list_entries())}'
+    })
+
+
+def edit_page(request, entry):
+    content = show_entry(request, entry)
+
+    return render(request, "encyclopedia/edit.html", {
+        "new_entry_form": NewEntryForm(content),
+        "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}',
+        "content": content,
     })
