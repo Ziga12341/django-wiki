@@ -31,8 +31,6 @@ def title_already_in_entries(title):
 
 
 def index(request):
-    random_page = choice(list_entries())
-
     # Check if method is POST
     if request.method == "POST":
 
@@ -51,7 +49,7 @@ def index(request):
     return render(request, f"encyclopedia/index.html", {
         "entries": list_entries(),
         "form": SearchEntryForm(),
-        "random_page": f'/wiki/{random_page}'
+        "random_page": f'/wiki/{choice(list_entries())}'
     })
 
 
@@ -61,6 +59,7 @@ def show_entry(request, title):
             "entry": markdown2.markdown(get_entry(title)),
             "page_title": title.capitalize(),
             "form": SearchEntryForm(),
+            "random_page": f'/wiki/{choice(list_entries())}'
         })
 
     return show_search_results(request, title)
@@ -73,10 +72,12 @@ def show_search_results(request, searched_query):
             "results": f"Results for your search '{searched_query}' are:",
             "matched_entries": matched_entries,
             "form": SearchEntryForm(),
+            "random_page": f'/wiki/{choice(list_entries())}'
         })
     return render(request, "encyclopedia/search_result.html", {
         "results": f'There is no results for particular search: "{searched_query}"',
         "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}'
     })
 
 
@@ -98,6 +99,7 @@ def create_new_entry(request):
                 return render(request, f"encyclopedia/index.html", {
                     "error": "Error: Entry already exist",
                     "form": SearchEntryForm(),
+                    "random_page": f'/wiki/{choice(list_entries())}'
                 })
 
             save_entry(title, content)
@@ -106,8 +108,6 @@ def create_new_entry(request):
 
     return render(request, "encyclopedia/create_new_entry.html", {
         "new_entry_form": NewEntryForm(),
-})
-
-
-def test(request):
-    return HttpResponse("Hello, Brian!")
+        "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}'
+    })

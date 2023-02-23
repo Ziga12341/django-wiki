@@ -1,1 +1,1 @@
-Once the entry is saved, the user should be redirected back to that entry’s page.
+Once the entry is saved, the user should be redirected back to that entry page.
