@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import markdown2
-from encyclopedia.util import list_entries, get_entry, save_entry
+from .util import list_entries, get_entry, save_entry
 from django import forms
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -18,6 +18,10 @@ class SearchEntryForm(forms.Form):
 class NewEntryForm(forms.Form):
     title = forms.CharField(label="Title:")
     content = forms.CharField(widget=forms.Textarea, label="Content:")
+
+
+class EditEntryForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea)
 
 
 # return list of entries that has name with "part of string" in entry - fo through all entries - not case-sensitive
@@ -114,11 +118,33 @@ def create_new_entry(request):
 
 
 def edit_page(request, entry):
-    content = show_entry(request, entry)
+    # Check if method is POST
+    content = get_entry(entry)
+    # Check if method is POST
+    if request.method == "POST":
+        print("was post request")
+        # Take in the data the user submitted and save it as form
+        form = EditEntryForm(request.POST)
+        print(form)
+        # Check if form data is valid (server-side)
+        if form.is_valid():
 
+            # Isolate the task from the 'cleaned' version of form data
+            payload_content = form.cleaned_data["content"]
+
+            save_entry(entry, payload_content)
+            return HttpResponseRedirect(reverse("wiki:entries"))
+#            return render(request, "encyclopedia/entry.html", {
+#                "entry": markdown2.markdown(get_entry(entry)),
+#                "page_title": entry,
+#                "form": SearchEntryForm(),
+ #               "random_page": f'/wiki/{choice(list_entries())}'
+ #           })
+    a = EditEntryForm(initial={'content': content})
     return render(request, "encyclopedia/edit.html", {
-        "new_entry_form": NewEntryForm(content),
+        "edit_entry_form": a,
         "form": SearchEntryForm(),
         "random_page": f'/wiki/{choice(list_entries())}',
+        "entry": entry,
         "content": content,
     })

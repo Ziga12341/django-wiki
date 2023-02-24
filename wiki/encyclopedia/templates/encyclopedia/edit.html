@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block body %}
-    <form action="{% url 'wiki:new' %}" method="post">
+    <form action="{% url 'wiki:edit' entry=entry %}"  method="POST">
         {% csrf_token %}
-        <label for="new_entry_title">Add new entry to wiki:</label>
-            {{ new_entry_form }}
+        <label for="edit_entry_title">EDIT entry of {{ entry }}:</label>
+            {{ edit_entry_form }}
             <input type="submit">
     </form>
 {% endblock %}

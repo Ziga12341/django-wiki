@@ -1,6 +1,6 @@
 from django.urls import path
 
-from encyclopedia.views import show_entry, index, create_new_entry, edit_page
+from .views import show_entry, index, create_new_entry, edit_page
 
 app_name = "wiki"
 
