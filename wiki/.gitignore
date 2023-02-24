@@ -2,6 +2,7 @@ todo.txt
 .idea
 idea/
 .idea/
+.idea/.gitignore
 venv/
 # Created by https://www.gitignore.io
 
