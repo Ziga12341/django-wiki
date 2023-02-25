@@ -11,9 +11,6 @@ from random import choice
 class SearchEntryForm(forms.Form):
     entry = forms.CharField(label="Type entry name you search for:")
 
-#            <input id="new_entry_title" name="title" type="text" placeholder="Write title of new entry">
-#            <textarea id="new_entry_content" name="content" placeholder="Text in Markdown"></textarea>
-
 
 class NewEntryForm(forms.Form):
     title = forms.CharField(label="Title:")
@@ -21,7 +18,7 @@ class NewEntryForm(forms.Form):
 
 
 class EditEntryForm(forms.Form):
-    content = forms.CharField(widget=forms.Textarea)
+    content = forms.CharField(widget=forms.Textarea, label="", help_text="")
 
 
 # return list of entries that has name with "part of string" in entry - fo through all entries - not case-sensitive
@@ -100,15 +97,13 @@ def create_new_entry(request):
             content = form.cleaned_data["content"]
 
             if title_already_in_entries(title):
-                return render(request, f"encyclopedia/index.html", {
-                    "error": "Error: Entry already exist",
-                    "form": SearchEntryForm(),
-                    "random_page": f'/wiki/{choice(list_entries())}'
-                })
+                return HttpResponseRedirect(reverse('wiki:error', args=("Entry already exist",)))
 
+            # when saved it add additional new lines...
             save_entry(title, content)
-            return show_entry(request, title)
-            # return HttpResponseRedirect(reverse(f"wiki:index"))
+            # reverse redirection how to pass arguments docs to url:
+            # https://docs.djangoproject.com/en/4.0/topics/http/urls/#reverse
+            return HttpResponseRedirect(reverse('wiki:entries', args=(title,)))
 
     return render(request, "encyclopedia/create_new_entry.html", {
         "new_entry_form": NewEntryForm(),
@@ -118,8 +113,9 @@ def create_new_entry(request):
 
 
 def edit_page(request, entry):
-    # Check if method is POST
+    # get entry content from get entry function
     content = get_entry(entry)
+
     # Check if method is POST
     if request.method == "POST":
         # Take in the data the user submitted and save it as form
@@ -130,16 +126,28 @@ def edit_page(request, entry):
             # Isolate the task from the 'cleaned' version of form data
             payload_content = form.cleaned_data["content"]
 
+            # save with blank line after newline
             save_entry(entry, payload_content)
 
-            # how to pass arguments docs to url: https://docs.djangoproject.com/en/4.0/topics/http/urls/#reverse
+            # works just fine
+            # return HttpResponseRedirect(f'/wiki/{entry}')
+
+            # reverse redirection how to pass arguments docs to url:
+            # https://docs.djangoproject.com/en/4.0/topics/http/urls/#reverse
             return HttpResponseRedirect(reverse('wiki:entries', args=(entry,)))
 
-    a = EditEntryForm(initial={'content': content})
     return render(request, "encyclopedia/edit.html", {
-        "edit_entry_form": a,
+        # initial value of textarea
+        "edit_entry_form": EditEntryForm(initial={'content': content}, auto_id=False),
         "form": SearchEntryForm(),
         "random_page": f'/wiki/{choice(list_entries())}',
         "entry": entry,
-        "content": content,
+    })
+
+
+def show_error(request, error_message):
+    return render(request, f"encyclopedia/error.html", {
+        "error": error_message,
+        "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}'
     })
