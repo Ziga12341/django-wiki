@@ -1,11 +1,12 @@
 from django.urls import path
 
-from .views import show_entry, index, create_new_entry, edit_page, show_error
+from .views import show_entry, index, search, create_new_entry, edit_page, show_error
 
 app_name = "wiki"
 
 urlpatterns = [
     path("", index, name="index"),
+    path("search/", search, name="search"),
     path("<str:title>", show_entry, name="entries"),
     path("new/", create_new_entry, name="new"),
     path("edit/<str:entry>", edit_page, name="edit"),

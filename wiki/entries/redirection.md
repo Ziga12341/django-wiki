@@ -1,1 +1,0 @@
-Once the entry is saved, the user should be redirected back to that entry page.

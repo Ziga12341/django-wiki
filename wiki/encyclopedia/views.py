@@ -27,11 +27,19 @@ def list_entries_that_search_text_presented_in_entry(search_text):
 
 
 # entry already exists - is in list of all entries
-def title_already_in_entries(title):
+def title_of_entry_already_in_entries(title):
     return title.casefold() in [entry.casefold() for entry in list_entries()]
 
 
 def index(request):
+    return render(request, f"encyclopedia/index.html", {
+        "entries": list_entries(),
+        "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}'
+    })
+
+
+def search(request):
     # Check if method is POST
     if request.method == "POST":
 
@@ -42,28 +50,26 @@ def index(request):
         if form.is_valid():
 
             # Isolate the task from the 'cleaned' version of form data
-            entry = form.cleaned_data["entry"]
+            searched_query = form.cleaned_data["entry"]
 
-            # return url with entry
-            return HttpResponseRedirect(f'/wiki/{entry}')
+            if title_of_entry_already_in_entries(searched_query):
+                # return url with entry
+                return HttpResponseRedirect(f'/wiki/{searched_query}')
 
-    return render(request, f"encyclopedia/index.html", {
-        "entries": list_entries(),
-        "form": SearchEntryForm(),
-        "random_page": f'/wiki/{choice(list_entries())}'
-    })
+            return show_search_results(request, searched_query)
+
+        return index(request)
 
 
 def show_entry(request, title):
-    if title_already_in_entries(title):
+    if title_of_entry_already_in_entries(title):
         return render(request, "encyclopedia/entry.html", {
             "entry": markdown2.markdown(get_entry(title)),
             "page_title": title,
             "form": SearchEntryForm(),
             "random_page": f'/wiki/{choice(list_entries())}'
         })
-
-    return show_search_results(request, title)
+    return HttpResponseRedirect(reverse('wiki:error', args=(f"Requested entry '{title}' not exists",)))
 
 
 def show_search_results(request, searched_query):
@@ -75,6 +81,7 @@ def show_search_results(request, searched_query):
             "form": SearchEntryForm(),
             "random_page": f'/wiki/{choice(list_entries())}'
         })
+
     return render(request, "encyclopedia/search_result.html", {
         "results": f'There is no results for particular search: "{searched_query}"',
         "form": SearchEntryForm(),
@@ -96,7 +103,7 @@ def create_new_entry(request):
             title = form.cleaned_data["title"]
             content = form.cleaned_data["content"]
 
-            if title_already_in_entries(title):
+            if title_of_entry_already_in_entries(title):
                 return HttpResponseRedirect(reverse('wiki:error', args=("Entry already exist",)))
 
             # when saved it add additional new lines...
