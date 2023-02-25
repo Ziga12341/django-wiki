@@ -122,10 +122,8 @@ def edit_page(request, entry):
     content = get_entry(entry)
     # Check if method is POST
     if request.method == "POST":
-        print("was post request")
         # Take in the data the user submitted and save it as form
         form = EditEntryForm(request.POST)
-        print(form)
         # Check if form data is valid (server-side)
         if form.is_valid():
 
@@ -133,13 +131,10 @@ def edit_page(request, entry):
             payload_content = form.cleaned_data["content"]
 
             save_entry(entry, payload_content)
-            return HttpResponseRedirect(reverse("wiki:entries"))
-#            return render(request, "encyclopedia/entry.html", {
-#                "entry": markdown2.markdown(get_entry(entry)),
-#                "page_title": entry,
-#                "form": SearchEntryForm(),
- #               "random_page": f'/wiki/{choice(list_entries())}'
- #           })
+
+            # how to pass arguments docs to url: https://docs.djangoproject.com/en/4.0/topics/http/urls/#reverse
+            return HttpResponseRedirect(reverse('wiki:entries', args=(entry,)))
+
     a = EditEntryForm(initial={'content': content})
     return render(request, "encyclopedia/edit.html", {
         "edit_entry_form": a,
