@@ -58,14 +58,17 @@ def search(request):
 
             return show_search_results(request, searched_query)
 
-        return index(request)
-
+    return render(request, f"encyclopedia/search.html", {
+        "search": "Search on left side of the page",
+        "form": SearchEntryForm(),
+        "random_page": f'/wiki/{choice(list_entries())}'
+    })
 
 def show_entry(request, title):
     if title_of_entry_already_in_entries(title):
         return render(request, "encyclopedia/entry.html", {
             "entry": markdown2.markdown(get_entry(title)),
-            "page_title": title,
+            "page_title":    title,
             "form": SearchEntryForm(),
             "random_page": f'/wiki/{choice(list_entries())}'
         })
